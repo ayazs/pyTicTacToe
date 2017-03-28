@@ -1,19 +1,18 @@
 
 
 class tttBoard:
-    arBoard = [[0,0,0],[0,0,0],[0,0,0]]
-    # boardAvail = set((x,y) for x in range(0,3) for y in range(0,3))
-    # boardX = set()
-    # boardY = set()
+    # arBoard = [[0,0,0],[0,0,0],[0,0,0]]
+    boardAvail = set((x,y) for x in range(0,2) for y in range(0,2))
+    boardPlayed = [set(),set()]
     
     def __init__(self, board = None):
         if (board is not None):
-            for x in range(0,3):
-                for y in range (0,3):
-                    self.arBoard[x][y] = board.arBoard[x][y]
-                    
-    # def __repr__(self):
-    #     return "<tttBoard arBoard:%s>" % (self.arBoard)
+            self.boardAvail = board.boardAvail.copy()
+            self.boardPlayed[0] = board.boardPlayed[0].copy()
+            self.boardPlayed[1] = board.boardPlayed[1].copy()
+
+    def __repr__(self):
+        return "<tttBoard boardAvail:{} boardPlayed:{} >".format(self.boardAvail, self.boardPlayed)
     
     def copy(self):
         newBoard = tttBoard(self)
@@ -26,38 +25,39 @@ class tttBoard:
             if not self.isPlayable(x,y):
                 return None
             retVal = self.copy()
-            retVal.arBoard[x][y] = player
+            s = (x,y)
+            retVal.boardAvail.remove(s)
+            retVal.boardPlayed[player-1].add(s)
             return retVal
         except:
             raise
         
     def getPos(self, x, y):
         try:
-            return self.arBoard[x][y]
+            s = (x,y)
+            if s in boardAvail:
+                return 0
+            elif s in boardPlayed[0]:
+                return 1
+            elif s in boardPlayed[1]:
+                return 2
+            else:
+                raise ValueError("Coordinates ({}) are invalid.".format(s))
         except:
             raise
     
     def isPlayable(self, x = -1, y = -1):
         if ((x == -1) and (y == -1)):
-            for val in self.arBoard:
-                if val == 0:
-                    return True
-        elif (x == -1):
-            for n in range(0,3):
-                if self.arBoard[n][y] == 0:
-                    return True
-            return False
-        elif (y == -1):
-            for n in range(0,3):
-                if self.arBoard[x][n] == 0:
-                    return True
-            return False
+            return True if len(self.boardAvail) > 0 else False
         else:
-            if self.arBoard[x][y] == 0:
+            s = (x,y)
+            if s in self.boardAvail:
                 return True
 
         return False
         
+    def getNextAvail(self):
+        return None if len(self.boardAvail) == 0 else next(iter(self.board))
         
 
 class tttTreeNode:
@@ -86,8 +86,11 @@ class tttTreeNode:
     def seed(self, turn=1):
         board = self.getBoard()
         
-        for x in range (0,3):
-            for y in range (0,3):
+        #while s = board.getNextAvail():
+            
+        
+        for x in range (0,2):
+            for y in range (0,2):
                 print("In seed() [{}][{}] turn={}. I am: {}".format(x,y,turn,self))
 
                 newBoard = board.playPos(turn,x,y)
